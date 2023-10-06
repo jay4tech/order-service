@@ -1,9 +1,13 @@
 package com.example.order.controller;
 
+import com.example.order.client.ProductClient;
 import com.example.order.entity.Order;
+import com.example.order.model.Product;
 import com.example.order.service.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
@@ -12,14 +16,23 @@ public class OrderController {
     @Autowired
     private IOrderService orderService;
 
+    @Autowired
+    ProductClient productClient;
+
     @GetMapping("/{id}")
     public Order getOrder(@PathVariable Long id) {
         return orderService.getOrder(id);
     }
+
     @PostMapping("/")
     public Order createOrder(@RequestBody Order order) {
-        return orderService.createOrder(order);
+        Product product = productClient.getProductById(order.getProductId());
+        if (product != null)
+            return orderService.createOrder(order);
+        else
+            throw new RuntimeException("No Product Found");
     }
+
     @PutMapping("/{id}")
     public Order updateOrder(@RequestBody Order order) {
         return orderService.updateOrder(order);
@@ -27,6 +40,11 @@ public class OrderController {
 
     @DeleteMapping("/{id}")
     public void deleteOrder(@PathVariable Long id) {
-         orderService.deleteOrder(id);
+        orderService.deleteOrder(id);
+    }
+
+    @GetMapping("/user/{userId}")
+    public List<Order> getOrderByUserId(@PathVariable Long userId) {
+        return orderService.getOrderByUserId(userId);
     }
 }
