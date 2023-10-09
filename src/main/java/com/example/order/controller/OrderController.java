@@ -4,7 +4,7 @@ package com.example.order.controller;
 import com.example.order.entity.Order;
 import com.example.order.model.Product;
 import com.example.order.service.IOrderService;
-import com.example.order.service.ProductServiceProxy;
+import com.example.order.service.ServiceProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +18,7 @@ public class OrderController {
     private IOrderService orderService;
 
     @Autowired
-    ProductServiceProxy productServiceProxy;
+    ServiceProxy serviceProxy;
 
     @GetMapping("/{id}")
     public Order getOrder(@PathVariable Long id) {
@@ -27,11 +27,12 @@ public class OrderController {
 
     @PostMapping("/")
     public Order createOrder(@RequestBody Order order) {
-        Product product = productServiceProxy.getProduct(order.getProductId());
-        if (product != null)
+        Product product = serviceProxy.getProduct(order.getProductId());
+        if (product != null) {
             return orderService.createOrder(order);
-        else
+        } else {
             throw new RuntimeException("No Product Found");
+        }
     }
 
     @PutMapping("/{id}")
